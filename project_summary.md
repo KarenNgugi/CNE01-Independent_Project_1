@@ -11,12 +11,12 @@ Finally, I must document a structured troubleshooting process for at least 3 dis
 ## Project Structure
 The project will be structured as such:
 * **files/** : this directory will contain all the necessary files for the project It will include the following:
-    * **configurations/** : 
-    * **scripts/** : 
-    * **web_files/** : 
-* **report/** : 
+    * **configurations/** : this subdirectory will contain all files related to configuration 
+    * **scripts/** : this subdirectory will contain all files related to scripting
+    * **web_files/** : this subdirectory will contain all files for web deployment
+* **report/** : this directory will contain the full report of the project
 * **screenshots/** : this directory will contain the screenshots for the relevant project milestones. Each subdirectory will contain a markdown file that provides more details about each screenshot.
-    * **milestone_1/** : this subdirectory will contain all the screenshots related to Milestone 1: Linux System Setup and Admin Basics
+    * **milestone_1/** : this subdirectory will contain all the screenshots related to Milestone 1: Linux System Setup and Administration Basics
     * **milestone_2/** : this subdirectory will contain all the screenshots related to Milestone 2: Shell Scripting and Automation
     * **milestone_3/** : this subdirectory will contain all the screenshots related to Milestone 3: NGINX Static Website Deployment
     * **milestone_4/** : this subdirectory will contain all the screenshots related to Milestone 4: Troubleshooting & Operations Validation
