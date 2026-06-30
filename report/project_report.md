@@ -107,13 +107,130 @@ However, the function is not called until after confirming that both arguments a
 
 ## Milestone 3: NGINX Static Website Deployment
 
+For this milestone, I started by creating the two files `index.html` and `styles.css` in `files/web_files/` and pasted their contents from the project guide. I ran the following commands in the terminal to obtain the details I would include in the `index.html` file as proof of customization:
+```
+whoami # to get the name of the current user
+hostname # to get the name of the current host (server) I'm on
+date # to get the current date
+cat /etc/lsb-release # to get details about the server's operating system
+```
+
+I then confirmed that Nginx was installed and started by running `nginx -v` and `sudo systemctl status nginx` respectively. Before making any changes, I ran `sudo nginx -t` to confirm the default configuration is okay and confirmed the default Nginx website was live on `http://localhost.`
+
+I then created my own configuration file called `webapp` and stored it in `/etc/nginx/sites-available`:
+```
+        server {
+                listen 80;
+                server_name localhost;
+
+                location / {
+                        root /var/www/webapp;
+                        index index.html;
+                }
+        }
+```
+
+I then created a folder `webapp` in the `/var/www/` directory and copied my project files there.
+
+Next was to create a symbolic link of my configuration file in the `/etc/nginx/sites-enabled/` folder which I did by running
+```
+sudo ln -s /etc/nginx/sites-available/webapp /etc/nginx/sites-enabled/
+``` 
+
+I then ran `sudo nginx -t` to confirm the configuration was okay before reloading Nginx. I was able to confirm my website was successfully served on `http://localhost`.
+
 ### Areas for improvement
+* Read the official Nginx documentation and practice more to gain a better understanding of Nginx
 
 [Go to Milestone 3 screenshots](https://github.com/KarenNgugi/CNE01-Independent_Project_1/tree/main/screenshots/milestone_3)
 
 ## Milestone 4: Troubleshooting & Operations
 
+### Issue 1: git push error
+The first error I came across was 
+```
+error: src refspec main does not match any
+error: failed to push some refs to 'github.com:KarenNgugi/CNE01-Independent_Project_1.git'
+```
+This happened right after I had initialized git locally and I had created the project repository on GitHub so I was trying to sync the two. It turned out that I needed to add and commit files first before I can push because I had created the `.gitignore` and `project notes.docx` files prior to creating the repository. So once I ran the following commands, I was sorted:
+```
+git add .
+git commit -m "created .gitignore file"
+git push -u origin main
+```
+
+### Issue 2: shell script not recognizing variables
+When getting started on shell scripting, I decided to start with a very simple sample code that could test receiving and printing arguments. However, when I ran the script, I got the following error:
+```
+./create_user.sh: line 3: USER: command not found 
+./create_user.sh: line 4: GROUP: command not found 
+```
+
+Upon inspection, I realized that I had surrounded the assignment operators ( `=` ) with spaces, which was fine for Python but not for shell scripting:
+```
+#!/bin/bash
+
+USER = $1
+GROUP = $2
+
+echo "$USER"
+echo "$GROUP"
+```
+
+Once I removed the spaces before and after the assignment operators, the error was resolved, and I was able to print the arguments to the terminal successfully.
+
+### Issue 3: shell syntax error
+Another error I encountered while still on shell scripting was, again, on wrong syntax:
+```
+./create_user.sh: line 10: syntax error: unexpected end of file from 'if' command on line 6
+```
+
+Initially, my code looked like this:
+```
+#!/bin/bash
+
+USER=$1
+GROUP=$2
+
+if [ -z "$1" ] && [ -z "$2" ]
+        read -p "Please enter a user and a group to add: " USER GROUP
+        
+echo "$USER"
+echo "$GROUP"
+
+```
+I looked into it and discovered that, in shell scripting, there should be a semicolon immediately after the condition followed by the keyword `then`, and the whole code block needs to be closed off with the `fi` keyword. So I incorporated the conditions and the error was resolved.
+
+### Issue 4: Nginx configuration test failed
+While working on the third milestone for the project, I encountered an issue with Nginx. I had created my own configuration file in `/etc/nginx/sites-available/webapp`, then created the `/var/www/webapp` directory where I moved my static web files to. I had not fully understood how exactly Nginx works so when I created the symbolic link by running
+```
+sudo ln -s /var/www/webapp/ /etc/nginx/sites-enabled/
+sudo nginx -t
+```
+The output was:
+```
+2026/06/29 13:32:24 [crit] 19857#19857: pread() "/etc/nginx/sites-enabled/webapp" failed (21: Is a directory)
+nginx: configuration file /etc/nginx/nginx.conf test failed
+```
+I immediately understood that the issue was that I created a symbolic link to a directory, which was not acceptable. So, being in the `/etc/nginx/` directory, I deleted the existing symbolic link tried another way:
+```
+sudo ln -s sites-available/webapp sites-enabled/
+sudo nginx -t
+```
+Again, the test failed with output:
+```
+2026/06/29 13:32:24 [emerg] 19857#19857: open() "/etc/nginx/sites-enabled/webapp" failed (2: No such file or directory) in /etc/nginx/nginx.conf:61
+nginx: configuration file /etc/nginx/nginx.conf test failed
+```
+
+I inspected line 61 in `/etc/nginx/nginx.conf` and found the following: 
+```
+include /etc/nginx/sites-enabled/*;
+```
+On a hunch, I decided to include the full path rather than the relative paths even though I was in the `/etc/nginx/` directory, and the issue was resolved.
+
 ### Areas for improvement
+* I should do more exploration and research so that I can deliberately cause errors to better understand the systems I'm working with
 
 [Go to Milestone 4 screenshots](https://github.com/KarenNgugi/CNE01-Independent_Project_1/tree/main/screenshots/milestone_4)
 
